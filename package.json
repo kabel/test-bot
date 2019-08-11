@@ -1,0 +1,21 @@
+{
+  "name": "kabel-test-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "out/index.js",
+  "bin": "bin/kabel-test-bot",
+  "scripts": {
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "azure-devops-node-api": "^9.0.1",
+    "jszip": "^3.2.2"
+  },
+  "devDependencies": {
+    "@types/jszip": "^3.1.6",
+    "@types/node": "^12.7.1",
+    "@types/rimraf": "^2.0.2",
+    "typescript": "^3.5.3"
+  }
+}
