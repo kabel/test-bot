@@ -129,7 +129,6 @@ async function safeSystem(command: string, args: readonly string[]) {
 }
 
 export interface RunOptions {
-    workingPath: string
     dryRun?: boolean
     pr?: number
     keepOld?: boolean
@@ -166,10 +165,9 @@ interface FormulaPackaged {
     [key: string]: boolean
 }
 
-export async function run(opts: RunOptions) {
+export async function run(workingPath: string, tap: string, opts: RunOptions) {
     cm.heading("Deploying bottles to tap");
-    process.chdir(opts.workingPath);
-    const envTap = cm.getEnv("HOMEBREW_TAP");
+    process.chdir(workingPath);
     const bintrayOrg = cm.getEnv("HOMEBREW_BINTRAY_ORG");
     const userAgent = await getUserAgent()
     const request = getHttpClient(userAgent);
@@ -184,11 +182,11 @@ export async function run(opts: RunOptions) {
 
     //#region `brew test-bot --ci-upload` reimplementation
 
-    tempArgs = ["--repository", envTap]
+    tempArgs = ["--repository", tap]
     const tapPath = (await execFile(HOMEBREW_BIN, tempArgs)).stdout.trim();
 
     if (!existsSync(tapPath)) {
-        tempArgs = ["tap", envTap, "--full"];
+        tempArgs = ["tap", tap, "--full"];
         await safeSystem(HOMEBREW_BIN, tempArgs);
     } else if (existsSync(path.join(tapPath, ".git/shallow"))) {
         await execFile(GIT_BIN, ["-C", tapPath, "fetch", "--unshallow"]);
@@ -205,7 +203,7 @@ export async function run(opts: RunOptions) {
         }
         jsonFiles = await globby("*.bottle.json");
         if (!jsonFiles.length) {
-            throw `No bottles found in ${opts.workingPath}`
+            throw `No bottles found in ${workingPath}`
         }
 
         bottles = await jsonFiles.reduce(async (prevBottle, file) => {
@@ -240,7 +238,7 @@ export async function run(opts: RunOptions) {
     const firstFormulaName = Object.keys(bottles)[0];
     const tapName = firstFormulaName.split("/", 3).slice(0, 2).join("/");
 
-    if (!opts.dryRun && tapName !== envTap) {
+    if (!opts.dryRun && tapName !== tap) {
         console.warn(chalk`{yellow Warning:} Bottle files don't match environment HOMEBREW_TAP`);
     }
 
@@ -362,7 +360,7 @@ ${bintrayPackageFilesUrl}`;
                 }
 
                 if (!packageExists) {
-                    const [tapUser, tapRepo] = envTap.split("/");
+                    const [tapUser, tapRepo] = tap.split("/");
                     const packageBlob = {
                         name: bintrayPackage,
                         public_download_numbers: true,
@@ -421,7 +419,7 @@ ${bintrayPackageFilesUrl}`;
     // const brewArgs = [
     //     "test-bot",
     //     "--ci-upload",
-    //     `--tap=${envTap}`,
+    //     `--tap=${tap}`,
     //     `--bintray-org=${bintrayOrg}`,
     //     `--git-name=${gitName}`,
     //     `--git-email=${gitEmail}`
