@@ -1,21 +1,32 @@
 {
   "name": "kabel-test-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Homebrew bot for handling the deployment of bottle files",
   "main": "out/index.js",
-  "bin": "bin/kabel-test-bot",
-  "scripts": {
+  "bin": "bin",
+  "scripts": {},
+  "author": {
+    "name": "Kevin Abel",
+    "email": "kevin.abel.0@gmail.com",
+    "url": "https://github.com/kabel"
   },
-  "author": "",
+  "private": true,
   "license": "BSD-2-Clause",
   "dependencies": {
     "azure-devops-node-api": "^9.0.1",
-    "jszip": "^3.2.2"
+    "chalk": "^2.4.2",
+    "deepmerge": "^4.0.0",
+    "globby": "^10.0.1",
+    "jszip": "^3.2.2",
+    "minimist": "^1.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   },
   "devDependencies": {
     "@types/jszip": "^3.1.6",
+    "@types/minimist": "^1.2.0",
     "@types/node": "^12.7.1",
-    "@types/rimraf": "^2.0.2",
+    "@types/request-promise-native": "^1.0.16",
     "typescript": "^3.5.3"
   }
 }

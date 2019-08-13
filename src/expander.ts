@@ -1,15 +1,14 @@
-import * as fs from "fs";
+import {promises as fsp, existsSync, createWriteStream} from "fs";
 import * as path from "path";
 import JSZip from "jszip";
-
-const fsp = fs.promises;
 
 export default class Expander {
     zip: JSZip;
     isBomb: boolean;
-    rootFile: JSZip.JSZipObject | null
+    rootFile: JSZip.JSZipObject | null;
     wrapPath: string | null;
-    expandTo: string | null;
+
+    static defaultExpandTo = ".";
 
     static async from(outPath: string) {
         return new this(outPath, await JSZip.loadAsync(await fsp.readFile(outPath)));
@@ -19,7 +18,7 @@ export default class Expander {
         const isDir = outPath.endsWith(path.sep)
         const origPath = path.parse(outPath);
         let newName = outPath;
-        for (let i = 1; fs.existsSync(newName); ++i) {
+        for (let i = 1; existsSync(newName); ++i) {
             newName = origPath.name + "-" + i + origPath.ext + (isDir ? path.sep : "");
         }
 
@@ -28,7 +27,6 @@ export default class Expander {
 
     constructor(outPath: string, zip: JSZip) {
         this.zip = zip;
-        this.expandTo = null;
         const topLevel = zip.filter(relPath => path.parse(relPath).dir === "");
         this.isBomb = topLevel.length > 1;
 
@@ -41,40 +39,33 @@ export default class Expander {
         }
     }
 
-    prepare() {
-        if (this.expandTo) {
-            return;
-        }
-
-        this.expandTo = "";
-
-        if (this.wrapPath) {
-            this.wrapPath = Expander.findAvailableName(this.wrapPath)
-            this.expandTo = this.wrapPath;
-        } else if (this.rootFile) {
-            let newName = Expander.findAvailableName(this.rootFile.name);
-
-            if (this.rootFile.dir) {
-                this.expandTo = newName;
-                if (newName !== this.rootFile.name) {
-                    this.zip.filter((relPath) => relPath.startsWith(this.rootFile!.name)).forEach(file => {
-                        file.name = newName + file.name.substring(file.name.indexOf(path.sep) + 1);
-                    });
-                }
-            }
-            this.rootFile.name = newName;
-        }
-    }
-
     async expand() {
         const prevWd = process.cwd();
+        let expandTo = Expander.defaultExpandTo;
 
         try {
-            this.prepare();
+            if (this.wrapPath) {
+                this.wrapPath = Expander.findAvailableName(this.wrapPath)
+                expandTo = this.wrapPath;
+            } else if (this.rootFile) {
+                let newName = Expander.findAvailableName(this.rootFile.name);
+
+                if (this.rootFile.dir) {
+                    expandTo = newName;
+                    if (newName !== this.rootFile.name) {
+                        this.zip.filter((relPath) => relPath.startsWith(this.rootFile!.name)).forEach(file => {
+                            file.name = newName + file.name.substring(file.name.indexOf(path.sep) + 1);
+                        });
+                    }
+                }
+                this.rootFile.name = newName;
+            }
 
             if (this.wrapPath) {
                 process.chdir(this.wrapPath);
             }
+
+            const utimesPromises:Promise<void>[] = [];
 
             for (const name in this.zip.files) {
                 const file = this.zip.files[name];
@@ -83,16 +74,20 @@ export default class Expander {
                     await fsp.mkdir(file.name, file.unixPermissions);
                 } else {
                     await new Promise(resolve => {
-                        let fileStream = fs.createWriteStream(file.name, {mode: file.unixPermissions as number});
+                        let fileStream = createWriteStream(file.name, {mode: file.unixPermissions as number});
                         file.nodeStream().pipe(fileStream);
                         fileStream.on("close", () => resolve());
                     });
-                    await fsp.utimes(file.name, file.date, file.date);
+                    utimesPromises.push(fsp.utimes(file.name, file.date, file.date));
                 }
             }
 
-            await Promise.all(this.zip.filter((_, file) => file.dir)
-                .map(async file => await fsp.utimes(file.name, file.date, file.date)));
+            utimesPromises.concat(this.zip.filter((_, file) => file.dir).map(
+                async file => await fsp.utimes(file.name, file.date, file.date)
+            ));
+            await Promise.all(utimesPromises);
+
+            return expandTo
         } finally {
             if (prevWd) {
                 process.chdir(prevWd);
