@@ -81,15 +81,11 @@ async function main() {
 
         const buildId = Number.parseInt(opts._[0]);
         if (Number.isNaN(buildId)) {
-            console.error("build_id is not a number");
-            usage();
-            process.exit(1);
+            throw "build_id is not a number"
         }
 
-        if (!opts._[1]) {
-            console.error("tap_name is required");
-            usage();
-            process.exit(1);
+        if (!opts._[1] || opts._[1].indexOf("/") < 0) {
+            throw "tap_name does not match Homebrew format: user/repo"
         }
 
         const expandedPath = await fetch.run({buildId: buildId, artifactName: opts.artifact, dryRun:opts.d});
