@@ -268,7 +268,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         logCommand(GIT_BIN, tempArgs);
     }
 
-    // ignoring reset, for now, to allow runs to stack
+    // // ignoring reset, for now, to allow runs to stack
     // tempArgs = ["reset", "origin/master"];
     // if (!opts.dryRun) {
     //     await safeSystem(GIT_BIN, tempArgs);
@@ -403,7 +403,7 @@ ${bintrayPackageFilesUrl}`;
 
     //#endregion
 
-    
+    // // brew test-bot cannot create packages on bintray for non-premium accounts, does not auto-publish package files, and always resets the tap to origin/master
     // // avoid falling back to BrewTestBot <homebrew-test-bot@lists.sfconservancy.org> values
     // let gitName = process.env.HOMEBREW_GIT_NAME;
     // if (!gitName) {
