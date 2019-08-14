@@ -6,10 +6,11 @@ import minimist from "minimist";
 import chalk from "chalk";
 
 function usage() {
-    console.log(chalk`{bold Usage: ${basename(process.argv[1])}} [{underline options}] {underline build_id} {underline tap_name}
+    console.log(chalk`{bold Usage: ${basename(process.argv[1])}} [{underline options}] {underline tap_name}
 
-Deploy Homebrew bottle artifact from Azure DevOps Services with {underline build_id} to Homebrew tap {underline tap_name}.
-The artifact is downloaded and extracted to the working directory, avoiding overriding existing local files.
+Deploy Homebrew bottles to Homebrew tap {underline tap_name}. 
+
+With the {bold --build-id} option, the bottle artifact from Azure DevOps Services is downloaded. It is downloaded and extracted to the working directory, avoiding overriding existing local files.
 
 The following configuration items must be in the environment or provided in the {bold --secrets} option.
 
@@ -27,6 +28,8 @@ The following configuration items must be in the environment or provided in the 
                                (default: from git config)
 
 {underline options}
+    {bold -b} {underline build_id}                Download artifact from build {uderline build_id}
+    {bold --build-id=}{underline build_id}
 
     {bold -c} {underline file}                    Load environment secrets from JSON {underline file}
     {bold --secrets=}{underline file}
@@ -49,10 +52,77 @@ The following configuration items must be in the environment or provided in the 
     );
 }
 
+interface MainOptions extends minimist.ParsedArgs {
+    /**
+     * @alias build-id
+     */
+    b?: number
+    /**
+     * The number from the Azure DevOps Services build
+     */
+    "build-id"?: number
+
+    /**
+     * @alias secrets
+     */
+    c?: string
+    /**
+     * JSON file of secrets to load into the environment
+     */
+    secrets?: string
+
+    /**
+     * @alias artifact
+     */
+    a: string
+    /**
+     * Name of the build artifact
+     * @default "drop"
+     */
+    artifact: string
+
+    /**
+     * @alias pr
+     */
+    p?: string
+    /**
+     * Pull request number that initiated the build
+     */
+    pr?: number
+
+    /**
+     * @alias no-push
+     */
+    n?: boolean
+    /**
+     * Do not push after everything is complete
+     */
+    "no-push"?: boolean
+
+    /**
+     * @alias dry-run
+     */
+    d?: boolean
+    /**
+     * Just print commands, instead of running them
+     */
+    "dry-run"?: boolean
+
+    /**
+     * @alias help
+     */
+    h: boolean
+    /**
+     * Show usage
+     */
+    help?: boolean
+}
+
 async function main() {
     try {
-        const opts = minimist(process.argv.slice(2), {
+        const opts = minimist<MainOptions>(process.argv.slice(2), {
             alias: {
+                "build-id": "b",
                 secrets: "c",
                 artifact: "a",
                 pr: "p",
@@ -73,23 +143,20 @@ async function main() {
             process.exit();
         }
 
-        let secrets = {};
         if (opts.secrets) {
-            secrets = JSON.parse((await fsp.readFile(opts.secrets)).toString());
-        }
-        Object.assign(process.env, secrets, {"HOMEBREW_NO_ENV_FILTERING": "1"})
-
-        const buildId = Number.parseInt(opts._[0]);
-        if (Number.isNaN(buildId)) {
-            throw "build_id is not a number"
+            const secrets = JSON.parse((await fsp.readFile(opts.secrets)).toString());
+            Object.assign(process.env, secrets);
         }
 
-        if (!opts._[1] || opts._[1].indexOf("/") < 0) {
+        if (!opts._[0] || opts._[0].indexOf("/") < 0) {
             throw "tap_name does not match Homebrew format: user/repo"
         }
 
-        const expandedPath = await fetch.run({buildId: buildId, artifactName: opts.artifact, dryRun:opts.d});
-        await ciUpload.run(expandedPath, opts._[1], {dryRun:opts.d, pr: opts.pr, noPush: opts.n});
+        let expandedPath = "."
+        if (opts["build-id"]) {
+            expandedPath = await fetch.run(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
+        }
+        await ciUpload.run(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, noPush: opts["no-push"]});
     } catch (reason) {
         let code = reason;
         if (typeof code !== "number") {
