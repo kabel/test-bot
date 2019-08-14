@@ -111,9 +111,7 @@ async function system(command: string, args: readonly string[]) {
     logCommand(command, args);
 
     return new Promise<ExitStatus>((resolve) => {
-        const proc = spawn(command, args);
-        proc.stdout.pipe(process.stdout);
-        proc.stderr.pipe(process.stderr);
+        const proc = spawn(command, args, {stdio: "inherit"});
         proc.on("error", err => resolve(new ExitStatus(err)));
         proc.on("exit", (code, signal) => resolve(new ExitStatus(code, signal)));
     });
@@ -169,18 +167,18 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     cm.heading("Deploying bottles to tap");
     process.chdir(workingPath);
     const bintrayOrg = cm.getEnv("HOMEBREW_BINTRAY_ORG");
-    const userAgent = await getUserAgent()
-    const request = getHttpClient(userAgent);
     let tempArgs: string[] = [];
-
+    
     Object.assign(process.env, { 
         "HOMEBREW_NO_ENV_FILTERING": "1",
         "HOMEBREW_DEVELOPER": "1",
         "HOMEBREW_NO_AUTO_UPDATE": "1",
         "HOMEBREW_NO_EMOJI": "1"
     });
-
+    
     //#region `brew test-bot --ci-upload` reimplementation
+    const userAgent = await getUserAgent()
+    const request = getHttpClient(userAgent);
 
     tempArgs = ["--repository", tap]
     const tapPath = (await execFile(HOMEBREW_BIN, tempArgs)).stdout.trim();
@@ -220,6 +218,11 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
                 "bottle": {
                     "rebuild": 0,
                     "tags": {
+                        [tag]: {
+                            "filename": `testbottest-1.0.0.${tag}.bottle.tar.gz`,
+                            "local_filename": `testbottest--1.0.0.${tag}.bottle.tar.gz`,
+                            "sha256": "20cdde424f5fe6d4fdb6a24cff41d2f7aefcd1ef2f98d46f6c074c36a1eef81e"
+                        }
                     }
                 },
                 "bintray": {
@@ -228,11 +231,6 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
                 }
             }
         };
-        bottles.testbottest.bottle.tags[tag] = {
-            "filename": `testbottest-1.0.0.${tag}.bottle.tar.gz`,
-            "local_filename": `testbottest--1.0.0.${tag}.bottle.tar.gz`,
-            "sha256": "20cdde424f5fe6d4fdb6a24cff41d2f7aefcd1ef2f98d46f6c074c36a1eef81e"
-        }
     }
 
     const firstFormulaName = Object.keys(bottles)[0];
@@ -249,14 +247,14 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
 
     tempArgs = ["am", "--abort"];
     if (!opts.dryRun) {
-        await execFile(GIT_BIN, tempArgs);
+        await execFile(GIT_BIN, tempArgs).catch(() => {});
     } else {
         logCommand(GIT_BIN, tempArgs);
     }
 
     tempArgs = ["rebase", "--abort"];
     if (!opts.dryRun) {
-        await execFile(GIT_BIN, tempArgs);
+        await execFile(GIT_BIN, tempArgs).catch(() => {});
     } else {
         logCommand(GIT_BIN, tempArgs);
     }
@@ -416,7 +414,7 @@ ${bintrayPackageFilesUrl}`;
     // if (opts.pr) {
     //     Object.assign(process.env, {"CHANGE_ID": opts.pr});
     // }
-    // const brewArgs = [
+    // tempArgs = [
     //     "test-bot",
     //     "--ci-upload",
     //     `--tap=${tap}`,
@@ -425,11 +423,11 @@ ${bintrayPackageFilesUrl}`;
     //     `--git-email=${gitEmail}`
     // ];
     // if (opts.dryRun) {
-    //     brewArgs.push("--dry-run");
+    //     tempArgs.push("--dry-run");
     // }
     // if (opts.keepOld) {
-    //     brewArgs.push("--keep-old")
+    //     tempArgs.push("--keep-old")
     // }
     
-    // await safeSystem(HOMEBREW_BIN, brewArgs);
+    // await safeSystem(HOMEBREW_BIN, tempArgs);
 }
