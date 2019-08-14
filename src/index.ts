@@ -14,31 +14,28 @@ With the {bold --build-id} option, the bottle artifact from Azure DevOps Service
 
 The following configuration items must be in the environment or provided in the {bold --secrets} option.
 
-    {bold API_URL}                    URL to the instance and collection/organization
-                               of Azure DevOps Services REST API
+    {bold API_URL}                    URL to the instance and collection/organization of Azure DevOps Services REST API
     {bold API_PROJECT}                Project id/name in Azsure DevOps Services
-    {bold API_TOKEN}                  Personal Access Token for the REST API
-                               (requires build:read scope)
+    {bold API_TOKEN}                  Personal Access Token for the REST API (requires build:read scope)
     {bold HOMEBREW_BINTRAY_ORG}       Bintray organization name to upload to    
     {bold HOMEBREW_BINTRAY_USER}      Bintray user name with upload rights
     {bold HOMEBREW_BINTRAY_KEY}       Bintray API key for user
-    {bold HOMEBREW_GIT_NAME}          User name to write bottle writing commits with
-                               (default: from git config)
-    {bold HOMEBREW_GIT_EMAIL}         Email to write bottle writing commits with
-                               (default: from git config)
+    {bold HOMEBREW_GIT_NAME}          User name to write bottle writing commits with (default: from git config)
+    {bold HOMEBREW_GIT_EMAIL}         Email to write bottle writing commits with (default: from git config)
 
 {underline options}
+
     {bold -b} {underline build_id}                Download artifact from build {underline build_id}
     {bold --build-id=}{underline build_id}
 
     {bold -c} {underline file}                    Load environment secrets from JSON {underline file}
     {bold --secrets=}{underline file}
 
-    {bold -a} {underline name}                    Use artifact named {underline name} from build
-    {bold --artifact=}{underline name}            (default: drop)
+    {bold -a} {underline name}                    Use artifact named {underline name} from build (default: drop)
+    {bold --artifact=}{underline name}
 
-    {bold -p} {underline pr#}                     Fetch and merge the pull request that initiated 
-    {bold --pr=}{underline pr#}                   this bottle
+    {bold -p} {underline pr#}                     Fetch and merge the pull request that initiated this bottle
+    {bold --pr=}{underline pr#}
 
     {bold -n}                         Do not push after everything is complete
     {bold --no-push}
