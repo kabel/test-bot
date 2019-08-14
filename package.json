@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Homebrew bot for handling the deployment of bottle files",
   "main": "out/index.js",
-  "bin": "bin",
-  "scripts": {},
+  "bin": "bin/kabel-test-bot",
+  "scripts": {
+    "build": "tsc"
+  },
   "author": {
     "name": "Kevin Abel",
     "email": "kevin.abel.0@gmail.com",
