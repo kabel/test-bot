@@ -28,7 +28,7 @@ The following configuration items must be in the environment or provided in the 
                                (default: from git config)
 
 {underline options}
-    {bold -b} {underline build_id}                Download artifact from build {uderline build_id}
+    {bold -b} {underline build_id}                Download artifact from build {underline build_id}
     {bold --build-id=}{underline build_id}
 
     {bold -c} {underline file}                    Load environment secrets from JSON {underline file}
