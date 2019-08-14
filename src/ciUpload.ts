@@ -237,7 +237,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     const tapName = firstFormulaName.split("/", 3).slice(0, 2).join("/");
 
     if (!opts.dryRun && tapName !== tap) {
-        console.warn(chalk`{yellow Warning:} Bottle files don't match environment HOMEBREW_TAP`);
+        console.warn(chalk`{yellow Warning:} Bottle files don't match given tap`);
     }
 
     Object.assign(process.env, {
