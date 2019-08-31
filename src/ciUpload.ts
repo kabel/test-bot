@@ -180,7 +180,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     const userAgent = await getUserAgent()
     const request = getHttpClient(userAgent);
 
-    tempArgs = ["--repository", tap]
+    tempArgs = ["--repository", tap];
     const tapPath = (await execFile(HOMEBREW_BIN, tempArgs)).stdout.trim();
 
     if (!existsSync(tapPath)) {
@@ -198,16 +198,16 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         bintrayAuth = {
             user: cm.getEnv("HOMEBREW_BINTRAY_USER"),
             pass: cm.getEnv("HOMEBREW_BINTRAY_KEY")
-        }
+        };
         jsonFiles = await globby("*.bottle.json");
         if (!jsonFiles.length) {
-            throw `No bottles found in ${workingPath}`
+            throw `No bottles found in ${workingPath}`;
         }
 
         bottles = await jsonFiles.reduce(async (prevBottle, file) => {
-            const bottle:BottlesHash = JSON.parse((await fsp.readFile(file)).toString())
+            const bottle: BottlesHash = JSON.parse((await fsp.readFile(file)).toString())
             return deepmerge<BottlesHash>(await prevBottle, bottle);
-        }, Promise.resolve(bottles))
+        }, Promise.resolve(bottles));
     } else {
         const tag = await macosTag();
         bottles = {
@@ -339,7 +339,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
             const filename = tagHash.filename;
             let alreadyPublished = false;
             let bintrayUrl = `${bintrayRoot}/${filename}`;
-            console.log(`curl -I --output /dev/null ${bintrayUrl}`)
+            console.log(`curl -I --output /dev/null ${bintrayUrl}`);
             if (!opts.dryRun) {
                 await request.head(bintrayUrl).then(() => alreadyPublished = true, () => {});
             }
@@ -372,7 +372,7 @@ ${bintrayPackageFilesUrl}`;
      ${bintrayPackagesUrl}`
                     );
                     if (!opts.dryRun) {
-                        await request.post(bintrayPackagesUrl, {auth: bintrayAuth, json: true});
+                        await request.post(bintrayPackagesUrl, {auth: bintrayAuth, body: packageBlob, json: true});
                     }
                 }
 
