@@ -17,18 +17,18 @@
   "dependencies": {
     "azure-devops-node-api": "^9.0.1",
     "chalk": "^2.4.2",
-    "deepmerge": "^4.0.0",
-    "globby": "^10.0.1",
+    "deepmerge": "^4.2.2",
+    "globby": "^10.0.2",
     "jszip": "^3.2.2",
-    "minimist": "^1.2.2",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7"
+    "minimist": "^1.2.5",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.8"
   },
   "devDependencies": {
-    "@types/jszip": "^3.1.6",
+    "@types/jszip": "^3.1.7",
     "@types/minimist": "^1.2.0",
-    "@types/node": "^12.7.1",
-    "@types/request-promise-native": "^1.0.16",
-    "typescript": "^3.5.3"
+    "@types/node": "^12.12.30",
+    "@types/request-promise-native": "^1.0.17",
+    "typescript": "^3.8.3"
   }
 }
