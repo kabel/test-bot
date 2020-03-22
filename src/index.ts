@@ -132,7 +132,7 @@ async function main() {
         });
 
         if (process.env.NO_COLOR) {
-            chalk.enabled = false;
+            chalk.level = chalk.Level.None;
         }
 
         if (opts.help || !opts._.length) {
