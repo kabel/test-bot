@@ -3,15 +3,16 @@ import { spawn, execFile as execFileCb } from "child_process";
 import deepmerge from "deepmerge";
 import globby from "globby";
 import {promises as fsp, existsSync, createReadStream} from "fs";
+import { pipeline as pipelineCb } from "stream";
 import {type as osType, release, arch} from "os";
 import path from "path";
-import rp from "request-promise-native";
-// import rerr from "request-promise-native/errors";
-import util from 'util';
+import got, {StrictOptions as GotOptions} from "got";
+import {promisify} from "util";
+import HttpAgent, {HttpsAgent} from "agentkeepalive";
 import * as cm from "./common";
-import request = require("request");
 
-const execFile = util.promisify(execFileCb);
+const execFile = promisify(execFileCb);
+const pipeline = promisify(pipelineCb);
 const HOMEBREW_BIN = "brew";
 const GIT_BIN = "git";
 
@@ -41,13 +42,15 @@ async function getUserAgent() {
 }
 
 function getHttpClient(agent: string) {
-    
-    return rp.defaults({
+    return got.extend({
         headers: {
             "User-Agent": agent
         },
-        forever: true
-    });
+        agent: {
+            http: new HttpAgent(),
+            https: new HttpsAgent()
+        }
+    })
 }
 
 async function macosVersion() {
@@ -190,14 +193,14 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         await execFile(GIT_BIN, ["-C", tapPath, "fetch", "--unshallow"]);
     }
     
-    let bintrayAuth: request.AuthOptions = {};
+    let bintrayAuth: GotOptions = {};
     let bottles: BottlesHash = {};
     let jsonFiles = ["$JSON_FILES"];
 
     if (!opts.dryRun) {
         bintrayAuth = {
-            user: cm.getEnv("HOMEBREW_BINTRAY_USER"),
-            pass: cm.getEnv("HOMEBREW_BINTRAY_KEY")
+            username: cm.getEnv("HOMEBREW_BINTRAY_USER"),
+            password: cm.getEnv("HOMEBREW_BINTRAY_KEY")
         };
         jsonFiles = await globby("*.bottle.json");
         if (!jsonFiles.length) {
@@ -372,7 +375,7 @@ ${bintrayPackageFilesUrl}`;
      ${bintrayPackagesUrl}`
                     );
                     if (!opts.dryRun) {
-                        await request.post(bintrayPackagesUrl, {auth: bintrayAuth, body: packageBlob, json: true});
+                        await request.post(bintrayPackagesUrl, Object.assign({json: packageBlob}, bintrayAuth));
                     }
                 }
 
@@ -385,7 +388,7 @@ ${bintrayPackageFilesUrl}`;
      ${bintrayUrl}`
             );
             if (!opts.dryRun) {
-                await createReadStream(tagHash.local_filename).pipe(request.put(bintrayUrl, {auth: bintrayAuth}));
+                await pipeline(createReadStream(tagHash.local_filename), request.stream.put(bintrayUrl, bintrayAuth));
             }
         }
     }
