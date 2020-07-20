@@ -1,5 +1,5 @@
-import * as fetch from "./buildArtifact"
-import * as ciUpload from "./ciUpload";
+import {run as fetch} from "./buildArtifact"
+import {run as ciUpload} from "./ciUpload";
 import {promises as fsp} from "fs";
 import {basename} from "path";
 import minimist from "minimist";
@@ -151,9 +151,9 @@ async function main() {
 
         let expandedPath = "."
         if (opts["build-id"]) {
-            expandedPath = await fetch.run(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
+            expandedPath = await fetch(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
         }
-        await ciUpload.run(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, noPush: opts["no-push"]});
+        await ciUpload(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, noPush: opts["no-push"]});
     } catch (reason) {
         let code = reason;
         if (typeof code !== "number") {

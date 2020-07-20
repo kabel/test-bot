@@ -1,15 +1,15 @@
 import chalk from "chalk";
-import { spawn, execFile as execFileCb } from "child_process";
+import {spawn, execFile as execFileCb} from "child_process";
 import deepmerge from "deepmerge";
 import globby from "globby";
 import {promises as fsp, existsSync, createReadStream} from "fs";
-import { pipeline as pipelineCb } from "stream";
+import {pipeline as pipelineCb} from "stream";
 import {type as osType, release, arch} from "os";
 import path from "path";
 import got, {StrictOptions as GotOptions} from "got";
 import {promisify} from "util";
 import HttpAgent, {HttpsAgent} from "agentkeepalive";
-import * as cm from "./common";
+import {getEnv, heading} from "./common";
 
 const execFile = promisify(execFileCb);
 const pipeline = promisify(pipelineCb);
@@ -167,9 +167,9 @@ interface FormulaPackaged {
 }
 
 export async function run(workingPath: string, tap: string, opts: RunOptions) {
-    cm.heading("Deploying bottles to tap");
+    heading("Deploying bottles to tap");
     process.chdir(workingPath);
-    const bintrayOrg = cm.getEnv("HOMEBREW_BINTRAY_ORG");
+    const bintrayOrg = getEnv("HOMEBREW_BINTRAY_ORG");
     let tempArgs: string[] = [];
     
     Object.assign(process.env, { 
@@ -199,8 +199,8 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
 
     if (!opts.dryRun) {
         bintrayAuth = {
-            username: cm.getEnv("HOMEBREW_BINTRAY_USER"),
-            password: cm.getEnv("HOMEBREW_BINTRAY_KEY")
+            username: getEnv("HOMEBREW_BINTRAY_USER"),
+            password: getEnv("HOMEBREW_BINTRAY_KEY")
         };
         jsonFiles = await globby("*.bottle.json");
         if (!jsonFiles.length) {

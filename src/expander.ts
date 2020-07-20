@@ -1,5 +1,5 @@
 import {promises as fsp, existsSync, createWriteStream} from "fs";
-import * as path from "path";
+import path from "path";
 import JSZip from "jszip";
 
 export default class Expander {
