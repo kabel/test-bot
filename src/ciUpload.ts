@@ -6,7 +6,7 @@ import {promises as fsp, existsSync, createReadStream} from "fs";
 import {pipeline as pipelineCb} from "stream";
 import {type as osType, release, arch} from "os";
 import path from "path";
-import got, {StrictOptions as GotOptions} from "got";
+import got, {StrictOptions as GotOptions, Agents} from "got";
 import {promisify} from "util";
 import HttpAgent, {HttpsAgent} from "agentkeepalive";
 import {getEnv, heading} from "./common";
@@ -401,6 +401,10 @@ ${bintrayPackageFilesUrl}`;
             logCommand(GIT_BIN, tempArgs);
         }
     }
+
+    let agent: Agents|undefined = request.defaults.options.agent || undefined;
+    agent?.http?.destroy()
+    agent?.https?.destroy()
 
     //#endregion
 

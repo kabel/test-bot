@@ -1,4 +1,4 @@
-import vm from "azure-devops-node-api";
+import * as vm from "azure-devops-node-api";
 // import lim from "azure-devops-node-api/interfaces/LocationsInterfaces";
 import chalk from "chalk";
 
