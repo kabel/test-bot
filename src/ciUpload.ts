@@ -262,7 +262,17 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         logCommand(GIT_BIN, tempArgs);
     }
 
-    tempArgs = ["checkout", "master"];
+    tempArgs = ["remote", "set-head", "origin", "--auto"]
+    if (!opts.dryRun) {
+        await safeSystem(GIT_BIN, tempArgs);
+    } else {
+        logCommand(GIT_BIN, tempArgs);
+    }
+
+    tempArgs = ["symbolic-ref", "refs/remotes/origin/HEAD", "--short"];
+    const defaultBranch = (await execFile(GIT_BIN, tempArgs)).stdout.trim() || "origin/master";
+
+    tempArgs = ["checkout", defaultBranch.replace("origin/", "")];
     if (!opts.dryRun) {
         await safeSystem(GIT_BIN, tempArgs);
     } else {
