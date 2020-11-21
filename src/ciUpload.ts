@@ -303,14 +303,14 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
             logCommand(GIT_BIN, tempArgs);
         }
 
-        tempArgs = ["rebase", "master", prRef];
+        tempArgs = ["rebase", defaultBranch.replace("origin/", ""), prRef];
         if (!opts.dryRun) {
             await safeSystem(GIT_BIN, tempArgs);
         } else {
             logCommand(GIT_BIN, tempArgs);
         }
 
-        tempArgs = ["checkout", "master"];
+        tempArgs = ["checkout", defaultBranch.replace("origin/", "")];
         if (!opts.dryRun) {
             await safeSystem(GIT_BIN, tempArgs);
         } else {
