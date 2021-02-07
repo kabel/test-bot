@@ -67,6 +67,7 @@ async function macosTag() {
     const versionNumber = await macosVersion()
     const versionMatcher = versionNumber.substring(0, versionNumber.lastIndexOf("."));
     const SYMBOLS = {
+        bur_sur:     "11",
         catalina:    "10.15",
         mojave:      "10.14",
         high_sierra: "10.13",
@@ -160,10 +161,6 @@ interface BottlesHash {
             repository: string
         }
     }
-}
-
-interface FormulaPackaged {
-    [key: string]: boolean
 }
 
 export async function run(workingPath: string, tap: string, opts: RunOptions) {
@@ -336,22 +333,17 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         logCommand(HOMEBREW_BIN, tempArgs);
     }
 
-    const packaged: FormulaPackaged = {};
     console.log(`Using User-Agent: ${userAgent}`);
 
-    for (let [formulaName, bottle] of Object.entries(bottles)) {
-        const version = bottle.formula.pkg_version;
-        const bintrayPackage = bottle.bintray.package;
+    for (let [_, bottle] of Object.entries(bottles)) {
         const bintrayRepo = bottle.bintray.repository;
         const bintrayRoot = bottle.bottle.root_url || `https://homebrew.bintray.com/${bintrayRepo}`;
-        const bintrayPackagesUrl = `https://api.bintray.com/packages/${bintrayOrg}/${bintrayRepo}`;
-        const bintrayPackageFilesUrl = `https://bintray.com/${bintrayOrg}/${bintrayRepo}/${bintrayPackage}/view#files`;
-        const bintrayContentUrl = `https://api.bintray.com/content/${bintrayOrg}/${bintrayRepo}/${bintrayPackage}/${version}`
+        const bintrayPackageFilesUrl = `https://${bintrayOrg}.jfrog.io/ui/repos/tree/General/${bintrayRepo}%2F`;
 
         for (let tagHash of Object.values(bottle.bottle.tags)) {
             const filename = tagHash.filename;
             let alreadyPublished = false;
-            let bintrayUrl = `${bintrayRoot}/${filename}`;
+            const bintrayUrl = `${bintrayRoot}/${filename}`;
             console.log(`curl -I --output /dev/null ${bintrayUrl}`);
             if (!opts.dryRun) {
                 await request.head(bintrayUrl).then(() => alreadyPublished = true, () => {});
@@ -359,40 +351,9 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
 
             if (alreadyPublished) {
                 throw `${filename} is already published. Please remove it manually from
-${bintrayPackageFilesUrl}`;
-            }
-            
-            if (!packaged[formulaName]) {
-                bintrayUrl = `${bintrayPackagesUrl}/${bintrayPackage}`;
-                let packageExists = false;
-                console.log(`curl --output /dev/null ${bintrayUrl}`);
-                if (!opts.dryRun) {
-                    await request.get(bintrayUrl).then(() => packageExists = true, () => {});
-                }
-
-                if (!packageExists) {
-                    const [tapUser, tapRepo] = tap.split("/");
-                    const packageBlob = {
-                        name: bintrayPackage,
-                        public_download_numbers: true,
-                        licenses: ["BSD 2-Clause"],
-                        vcs_url: `https://github.com/${tapUser}/homebrew-${tapRepo}`
-                    };
-
-                    console.log(`curl --user $HOMEBREW_BINTRAY_USER:$HOMEBREW_BINTRAY_KEY
-     --header Content-Type: application/json
-     --data ${JSON.stringify(packageBlob)}
-     ${bintrayPackagesUrl}`
-                    );
-                    if (!opts.dryRun) {
-                        await request.post(bintrayPackagesUrl, Object.assign({json: packageBlob}, bintrayAuth));
-                    }
-                }
-
-                packaged[formulaName] = true;
+${bintrayPackageFilesUrl}${filename}`;
             }
 
-            bintrayUrl = `${bintrayContentUrl}/${filename}?publish=1`;
             console.log(`curl --user $HOMEBREW_BINTRAY_USER:$HOMEBREW_BINTRAY_KEY
      --upload-file ${tagHash.local_filename}
      ${bintrayUrl}`
