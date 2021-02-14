@@ -73,7 +73,7 @@ export default class Expander {
                 if (file.dir) {
                     await fsp.mkdir(file.name, file.unixPermissions);
                 } else {
-                    await new Promise(resolve => {
+                    await new Promise<void>(resolve => {
                         let fileStream = createWriteStream(file.name, {mode: file.unixPermissions as number});
                         file.nodeStream().pipe(fileStream);
                         fileStream.on("close", () => resolve());

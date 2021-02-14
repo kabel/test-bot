@@ -8,7 +8,7 @@ import {type as osType, release, arch} from "os";
 import path from "path";
 import got, {StrictOptions as GotOptions, Agents} from "got";
 import {promisify} from "util";
-import HttpAgent, {HttpsAgent} from "agentkeepalive";
+// import HttpAgent, {HttpsAgent} from "agentkeepalive";
 import {getEnv, heading} from "./common";
 
 const execFile = promisify(execFileCb);
@@ -46,10 +46,10 @@ function getHttpClient(agent: string) {
         headers: {
             "User-Agent": agent
         },
-        agent: {
-            http: new HttpAgent(),
-            https: new HttpsAgent()
-        }
+        // agent: {
+        //     http: new HttpAgent(),
+        //     https: new HttpsAgent()
+        // }
     })
 }
 
@@ -350,8 +350,10 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
             }
 
             if (alreadyPublished) {
-                throw `${filename} is already published. Please remove it manually from
+                const errMsg = `${filename} is already published. Please remove it manually from
 ${bintrayPackageFilesUrl}${filename}`;
+                console.warn(errMsg);
+//                 throw errMsg;
             }
 
             console.log(`curl --user $HOMEBREW_BINTRAY_USER:$HOMEBREW_BINTRAY_KEY
@@ -373,9 +375,9 @@ ${bintrayPackageFilesUrl}${filename}`;
         }
     }
 
-    let agent: Agents|undefined = request.defaults.options.agent || undefined;
-    agent?.http?.destroy()
-    agent?.https?.destroy()
+    // let agent: Agents|undefined = request.defaults.options.agent || undefined;
+    // agent?.http?.destroy()
+    // agent?.https?.destroy()
 
     //#endregion
 
