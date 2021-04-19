@@ -6,7 +6,7 @@ import {promises as fsp, existsSync, createReadStream} from "fs";
 import {pipeline as pipelineCb} from "stream";
 import {type as osType, release, arch} from "os";
 import path from "path";
-import got, {StrictOptions as GotOptions, Agents} from "got";
+import got, {StrictOptions as GotOptions} from "got";
 import {promisify} from "util";
 // import HttpAgent, {HttpsAgent} from "agentkeepalive";
 import {getEnv, heading} from "./common";
@@ -156,10 +156,6 @@ interface BottlesHash {
                 }
             }
         }
-        bintray: {
-            package: string
-            repository: string
-        }
     }
 }
 
@@ -170,7 +166,6 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     let tempArgs: string[] = [];
     
     Object.assign(process.env, { 
-        "HOMEBREW_NO_ENV_FILTERING": "1",
         "HOMEBREW_DEVELOPER": "1",
         "HOMEBREW_NO_AUTO_UPDATE": "1",
         "HOMEBREW_NO_EMOJI": "1"
@@ -225,10 +220,6 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
                         }
                     }
                 },
-                "bintray": {
-                    "package": "testbottest",
-                    "repository": "bottles"
-                }
             }
         };
     }
@@ -336,8 +327,8 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     console.log(`Using User-Agent: ${userAgent}`);
 
     for (let [_, bottle] of Object.entries(bottles)) {
-        const bintrayRepo = bottle.bintray.repository;
-        const bintrayRoot = bottle.bottle.root_url || `https://homebrew.bintray.com/${bintrayRepo}`;
+        const bintrayRepo = bottle.bottle.root_url?.substring(bottle.bottle.root_url.lastIndexOf('/') + 1) || '';
+        const bintrayRoot = bottle.bottle.root_url || '';
         const bintrayPackageFilesUrl = `https://${bintrayOrg}.jfrog.io/ui/repos/tree/General/${bintrayRepo}%2F`;
 
         for (let tagHash of Object.values(bottle.bottle.tags)) {
