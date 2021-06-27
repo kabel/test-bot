@@ -67,6 +67,7 @@ async function macosTag() {
     const versionNumber = await macosVersion()
     const versionMatcher = versionNumber.substring(0, versionNumber.lastIndexOf("."));
     const SYMBOLS = {
+        monterey:    "12",
         bur_sur:     "11",
         catalina:    "10.15",
         mojave:      "10.14",
