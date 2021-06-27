@@ -19,14 +19,14 @@
     "azure-devops-node-api": "^11.0.0",
     "chalk": "^4.1.1",
     "deepmerge": "^4.2.2",
-    "globby": "^11.0.3",
+    "globby": "^11.0.4",
     "got": "^11.8.2",
     "jszip": "^3.6.0",
     "minimist": "^1.2.5"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.1",
-    "@types/node": "^15.12.2",
-    "typescript": "^4.3.2"
+    "@types/node": "^15.12.5",
+    "typescript": "^4.3.4"
   }
 }
