@@ -22,7 +22,7 @@
     "globby": "^11.0.4",
     "got": "^11.8.2",
     "jszip": "^3.6.0",
-    "minimist": "^1.2.5"
+    "minimist": "^1.2.6"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.1",
