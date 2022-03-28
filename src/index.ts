@@ -154,7 +154,7 @@ async function main() {
             expandedPath = await fetch(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
         }
         await ciUpload(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, noPush: opts["no-push"]});
-    } catch (reason) {
+    } catch (reason:any) {
         let code = reason;
         if (typeof code !== "number") {
             console.error(reason);
