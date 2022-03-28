@@ -1,6 +1,6 @@
 import * as vm from "azure-devops-node-api";
 // import lim from "azure-devops-node-api/interfaces/LocationsInterfaces";
-import chalk from "chalk";
+import chalk from "chalk-template";
 
 export function getEnv(name: string): string {
     let val = process.env[name];

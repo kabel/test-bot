@@ -1,12 +1,13 @@
-import {run as fetch} from "./buildArtifact"
-import {run as ciUpload} from "./ciUpload";
-import {promises as fsp} from "fs";
-import {basename} from "path";
+import {run as fetch} from "./buildArtifact.js"
+import {run as ciUpload} from "./ciUpload.js";
+import {promises as fsp} from "node:fs";
+import {basename} from "node:path";
 import minimist from "minimist";
+import chalkTemplate from "chalk-template";
 import chalk from "chalk";
 
 function usage() {
-    console.log(chalk`{bold Usage: ${basename(process.argv[1])}} [{underline options}] {underline tap_name}
+    console.log(chalkTemplate`{bold Usage: ${basename(process.argv[1])}} [{underline options}] {underline tap_name}
 
 Deploy Homebrew bottles to Homebrew tap {underline tap_name}. 
 

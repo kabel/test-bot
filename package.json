@@ -2,7 +2,8 @@
   "name": "kabel-test-bot",
   "version": "1.0.0",
   "description": "Homebrew bot for handling the deployment of bottle files",
-  "main": "out/index.js",
+  "type": "module",
+  "exports": "./out/index.js",
   "bin": "bin/kabel-test-bot",
   "scripts": {
     "build": "tsc"
@@ -15,18 +16,19 @@
   "private": true,
   "license": "BSD-2-Clause",
   "dependencies": {
-    "agentkeepalive": "^4.1.4",
-    "azure-devops-node-api": "^11.0.0",
-    "chalk": "^4.1.1",
+    "agentkeepalive": "^4.2.1",
+    "azure-devops-node-api": "^11.1.1",
+    "chalk": "^4.1.2",
+    "chalk-template": "^0.4.0",
     "deepmerge": "^4.2.2",
-    "globby": "^11.0.4",
-    "got": "^11.8.2",
-    "jszip": "^3.6.0",
-    "minimist": "^1.2.5"
+    "globby": "^13.1.1",
+    "got": "10.7.0",
+    "jszip": "^3.7.1",
+    "minimist": "^1.2.6"
   },
   "devDependencies": {
-    "@types/minimist": "^1.2.1",
-    "@types/node": "^15.12.5",
-    "typescript": "^4.3.4"
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^17.0.23",
+    "typescript": "^4.6.3"
   }
 }

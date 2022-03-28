@@ -1,15 +1,15 @@
-import chalk from "chalk";
-import {spawn, execFile as execFileCb} from "child_process";
-import deepmerge from "deepmerge";
-import globby from "globby";
-import {promises as fsp, existsSync, createReadStream} from "fs";
-import {pipeline as pipelineCb} from "stream";
-import {type as osType, release, arch} from "os";
-import path from "path";
-import got, {StrictOptions as GotOptions} from "got";
-import {promisify} from "util";
 // import HttpAgent, {HttpsAgent} from "agentkeepalive";
-import {getEnv, heading} from "./common";
+import chalk from "chalk-template";
+import deepmerge from "deepmerge";
+import {globby} from "globby";
+import got, {Options as GotOptions} from "got";
+import {spawn, execFile as execFileCb} from "node:child_process";
+import {promises as fsp, existsSync, createReadStream} from "node:fs";
+import {pipeline as pipelineCb} from "node:stream";
+import {type as osType, release, arch} from "node:os";
+import path from "node:path";
+import {promisify} from "node:util";
+import {getEnv, heading} from "./common.js";
 
 const execFile = promisify(execFileCb);
 const pipeline = promisify(pipelineCb);
@@ -46,6 +46,7 @@ function getHttpClient(agent: string) {
         headers: {
             "User-Agent": agent
         },
+        retry: 0
         // agent: {
         //     http: new HttpAgent(),
         //     https: new HttpsAgent()
@@ -186,7 +187,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         await execFile(GIT_BIN, ["-C", tapPath, "fetch", "--unshallow"]);
     }
     
-    let bintrayAuth: GotOptions = {};
+    let bintrayAuth: GotOptions & {isStream?: true} = {};
     let bottles: BottlesHash = {};
     let jsonFiles = ["$JSON_FILES"];
 

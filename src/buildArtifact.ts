@@ -1,9 +1,9 @@
 import vm from "azure-devops-node-api";
 import ba from "azure-devops-node-api/BuildApi";
 import bi from "azure-devops-node-api/interfaces/BuildInterfaces";
-import {createWriteStream} from "fs";
-import {getWebApi, getProject, heading} from "./common";
-import Expander from "./expander";
+import {createWriteStream} from "node:fs";
+import {getWebApi, getProject, heading} from "./common.js";
+import Expander from "./expander.js";
 
 export interface RunOptions {
     dryRun?: boolean

@@ -1,5 +1,5 @@
-import {promises as fsp, existsSync, createWriteStream} from "fs";
-import path from "path";
+import {promises as fsp, existsSync, createWriteStream} from "node:fs";
+import path from "node:path";
 import JSZip from "jszip";
 
 export default class Expander {
