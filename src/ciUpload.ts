@@ -2,17 +2,15 @@
 import chalk from "chalk-template";
 import deepmerge from "deepmerge";
 import {globby} from "globby";
-import got, {Options as GotOptions} from "got";
+import got, {StrictOptions as GotOptions} from "got";
 import {spawn, execFile as execFileCb} from "node:child_process";
 import {promises as fsp, existsSync, createReadStream} from "node:fs";
-import {pipeline as pipelineCb} from "node:stream";
 import {type as osType, release, arch} from "node:os";
 import path from "node:path";
 import {promisify} from "node:util";
 import {getEnv, heading} from "./common.js";
 
 const execFile = promisify(execFileCb);
-const pipeline = promisify(pipelineCb);
 const HOMEBREW_BIN = "brew";
 const GIT_BIN = "git";
 
@@ -46,7 +44,6 @@ function getHttpClient(agent: string) {
         headers: {
             "User-Agent": agent
         },
-        retry: 0
         // agent: {
         //     http: new HttpAgent(),
         //     https: new HttpsAgent()
@@ -187,7 +184,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
         await execFile(GIT_BIN, ["-C", tapPath, "fetch", "--unshallow"]);
     }
     
-    let bintrayAuth: GotOptions & {isStream?: true} = {};
+    let bintrayAuth: GotOptions = {};
     let bottles: BottlesHash = {};
     let jsonFiles = ["$JSON_FILES"];
 
@@ -354,7 +351,7 @@ ${bintrayPackageFilesUrl}${filename}`;
      ${bintrayUrl}`
             );
             if (!opts.dryRun) {
-                await pipeline(createReadStream(tagHash.local_filename), request.stream.put(bintrayUrl, bintrayAuth));
+                createReadStream(tagHash.local_filename).pipe(request.stream.put(bintrayUrl, bintrayAuth));
             }
         }
     }
