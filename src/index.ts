@@ -44,6 +44,9 @@ The following configuration items must be in the environment or provided in the 
     {bold -d}                         Just print commands, instead of running them
     {bold --dry-run}
 
+    {bold -k}                         Keep old bottles
+    {bold --keep-old}
+
     {bold -h}                         Show this message
     {bold --help}
 `
@@ -126,10 +129,11 @@ async function main() {
                 pr: "p",
                 "no-push": "n",
                 "dry-run": "d",
+                "keep-old": "k",
                 help: "h"
             },
             default: {artifact: "drop"},
-            boolean: ["n", "d", "h"]
+            boolean: ["n", "d", "k", "h"]
         });
 
         if (process.env.NO_COLOR) {
@@ -154,7 +158,7 @@ async function main() {
         if (opts["build-id"]) {
             expandedPath = await fetch(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
         }
-        await ciUpload(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, noPush: opts["no-push"]});
+        await ciUpload(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, keepOld: opts["keep-old"], noPush: opts["no-push"]});
     } catch (reason:any) {
         let code = reason;
         if (typeof code !== "number") {
