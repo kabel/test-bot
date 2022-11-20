@@ -7,10 +7,12 @@ import {spawn, execFile as execFileCb} from "node:child_process";
 import {promises as fsp, existsSync, createReadStream} from "node:fs";
 import {type as osType, release, arch} from "node:os";
 import path from "node:path";
+import { pipeline as pipelineCb, Stream } from "node:stream";
 import {promisify} from "node:util";
 import {getEnv, heading} from "./common.js";
 
 const execFile = promisify(execFileCb);
+const pipeline = promisify(pipelineCb);
 const HOMEBREW_BIN = "brew";
 const GIT_BIN = "git";
 
@@ -351,7 +353,11 @@ ${bintrayPackageFilesUrl}${filename}`;
      ${bintrayUrl}`
             );
             if (!opts.dryRun) {
-                createReadStream(tagHash.local_filename).pipe(request.stream.put(bintrayUrl, bintrayAuth));
+                await pipeline(
+                    createReadStream(tagHash.local_filename),
+                    request.stream.put(bintrayUrl, bintrayAuth),
+                    new Stream.PassThrough()
+                );
             }
         }
     }
