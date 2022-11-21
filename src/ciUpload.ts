@@ -7,12 +7,12 @@ import {spawn, execFile as execFileCb} from "node:child_process";
 import {promises as fsp, existsSync, createReadStream} from "node:fs";
 import {type as osType, release, arch} from "node:os";
 import path from "node:path";
-import { pipeline as pipelineCb, Stream } from "node:stream";
+import {Stream} from "node:stream";
+import {pipeline} from "node:stream/promises";
 import {promisify} from "node:util";
 import {getEnv, heading} from "./common.js";
 
 const execFile = promisify(execFileCb);
-const pipeline = promisify(pipelineCb);
 const HOMEBREW_BIN = "brew";
 const GIT_BIN = "git";
 
