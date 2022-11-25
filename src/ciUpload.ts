@@ -168,7 +168,6 @@ interface BottlesHash {
 export async function run(workingPath: string, tap: string, opts: RunOptions) {
     heading("Deploying bottles to tap");
     process.chdir(workingPath);
-    const bintrayOrg = getEnv("HOMEBREW_BINTRAY_ORG");
     let tempArgs: string[] = [];
     
     Object.assign(process.env, { 
@@ -333,9 +332,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     console.log(`Using User-Agent: ${userAgent}`);
 
     for (let [_, bottle] of Object.entries(bottles)) {
-        const bintrayRepo = bottle.bottle.root_url?.substring(bottle.bottle.root_url.lastIndexOf('/') + 1) || '';
         const bintrayRoot = bottle.bottle.root_url || '';
-        const bintrayPackageFilesUrl = `https://${bintrayOrg}.jfrog.io/ui/repos/tree/General/${bintrayRepo}%2F`;
 
         for (let tagHash of Object.values(bottle.bottle.tags)) {
             const filename = tagHash.filename;
@@ -348,7 +345,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
 
             if (alreadyPublished) {
                 const errMsg = `${filename} is already published. Please remove it manually from
-${bintrayPackageFilesUrl}${filename}`;
+  ${bintrayUrl}`;
                 console.warn(errMsg);
 //                 throw errMsg;
             }
@@ -382,7 +379,6 @@ ${bintrayPackageFilesUrl}${filename}`;
 
     //#endregion
 
-    // // brew test-bot cannot create packages on bintray for non-premium accounts, does not auto-publish package files, and always resets the tap to origin/master
     // // avoid falling back to BrewTestBot <homebrew-test-bot@lists.sfconservancy.org> values
     // let gitName = process.env.HOMEBREW_GIT_NAME;
     // if (!gitName) {
@@ -399,7 +395,6 @@ ${bintrayPackageFilesUrl}${filename}`;
     //     "test-bot",
     //     "--ci-upload",
     //     `--tap=${tap}`,
-    //     `--bintray-org=${bintrayOrg}`,
     //     `--git-name=${gitName}`,
     //     `--git-email=${gitEmail}`
     // ];
