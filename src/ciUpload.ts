@@ -65,8 +65,8 @@ async function macosTag() {
     }
 
     const versionNumber = await macosVersion()
-    const versionMatcher = versionNumber.substring(0, versionNumber.lastIndexOf("."));
     const SYMBOLS = {
+        ventura:     "13",
         monterey:    "12",
         bur_sur:     "11",
         catalina:    "10.15",
@@ -79,6 +79,11 @@ async function macosTag() {
     }
 
     for (const [sym, ver] of Object.entries(SYMBOLS)) {
+        var versionMatcher = versionNumber.substring(0, versionNumber.lastIndexOf("."));
+        if (!ver.includes(".")) {
+            versionMatcher = versionMatcher.substring(0, versionMatcher.indexOf("."));
+        }
+
         if (ver === versionMatcher) {
             return sym;
         }
