@@ -1,5 +1,5 @@
 // import HttpAgent, {HttpsAgent} from "agentkeepalive";
-import chalk from "chalk-template";
+import chalk from "chalk";
 import deepmerge from "deepmerge";
 import {globby} from "globby";
 import got, {StrictOptions as GotOptions} from "got";
@@ -233,7 +233,7 @@ export async function run(workingPath: string, tap: string, opts: RunOptions) {
     const tapName = firstFormulaName.split("/", 3).slice(0, 2).join("/");
 
     if (!opts.dryRun && tapName !== tap) {
-        console.warn(chalk`{yellow Warning:} Bottle files don't match given tap`);
+        console.warn(`${chalk.yellow('Warning:')} Bottle files don't match given tap`);
     }
 
     Object.assign(process.env, {

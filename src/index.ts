@@ -3,52 +3,51 @@ import {run as ciUpload} from "./ciUpload.js";
 import {promises as fsp} from "node:fs";
 import {basename} from "node:path";
 import minimist from "minimist";
-import chalkTemplate from "chalk-template";
 import chalk from "chalk";
 
 function usage() {
-    console.log(chalkTemplate`{bold Usage: ${basename(process.argv[1])}} [{underline options}] {underline tap_name}
+    console.log(`${chalk.bold(`Usage: ${basename(process.argv[1])}`)} [${chalk.underline('options')}] ${chalk.underline('tap_name')}
 
-Deploy Homebrew bottles to Homebrew tap {underline tap_name}. 
+Deploy Homebrew bottles to Homebrew tap ${chalk.underline('tap_name')}.
 
-With the {bold --build-id} option, the bottle artifact from Azure DevOps Services is downloaded. It is downloaded and extracted to the working directory, avoiding overriding existing local files.
+With the ${chalk.bold('--build-id')} option, the bottle artifact from Azure DevOps Services is downloaded. It is downloaded and extracted to the working directory, avoiding overriding existing local files.
 
-The following configuration items must be in the environment or provided in the {bold --secrets} option.
+The following configuration items must be in the environment or provided in the ${chalk.bold('--secrets')} option.
 
-    {bold API_URL}                    URL to the instance and collection/organization of Azure DevOps Services REST API
-    {bold API_PROJECT}                Project id/name in Azsure DevOps Services
-    {bold API_TOKEN}                  Personal Access Token for the REST API (requires build:read scope)
-    {bold HOMEBREW_BINTRAY_ORG}       Bintray organization name to upload to    
-    {bold HOMEBREW_BINTRAY_USER}      Bintray user name with upload rights
-    {bold HOMEBREW_BINTRAY_KEY}       Bintray API key for user
-    {bold HOMEBREW_GIT_NAME}          User name to write bottle writing commits with (default: from git config)
-    {bold HOMEBREW_GIT_EMAIL}         Email to write bottle writing commits with (default: from git config)
+    ${chalk.bold('API_URL')}                    URL to the instance and collection/organization of Azure DevOps Services REST API
+    ${chalk.bold('API_PROJECT')}                Project id/name in Azsure DevOps Services
+    ${chalk.bold('API_TOKEN')}                  Personal Access Token for the REST API (requires build:read scope)
+    ${chalk.bold('HOMEBREW_BINTRAY_ORG')}       Bintray organization name to upload to
+    ${chalk.bold('HOMEBREW_BINTRAY_USER')}      Bintray user name with upload rights
+    ${chalk.bold('HOMEBREW_BINTRAY_KEY')}       Bintray API key for user
+    ${chalk.bold('HOMEBREW_GIT_NAME')}          User name to write bottle writing commits with (default: from git config)
+    ${chalk.bold('HOMEBREW_GIT_EMAIL')}         Email to write bottle writing commits with (default: from git config)
 
-{underline options}
+${chalk.underline('options')}
 
-    {bold -b} {underline build_id}                Download artifact from build {underline build_id}
-    {bold --build-id=}{underline build_id}
+    ${chalk.bold('-b')} ${chalk.underline('build_id')}                Download artifact from build ${chalk.underline('build_id')}
+    ${chalk.bold('--build-id=')}${chalk.underline('build_id')}
 
-    {bold -c} {underline file}                    Load environment secrets from JSON {underline file}
-    {bold --secrets=}{underline file}
+    ${chalk.bold('-c')} ${chalk.underline('file')}                    Load environment secrets from JSON ${chalk.underline('file')}
+    ${chalk.bold('--secrets=')}${chalk.underline('file')}
 
-    {bold -a} {underline name}                    Use artifact named {underline name} from build (default: drop)
-    {bold --artifact=}{underline name}
+    ${chalk.bold('-a')} ${chalk.underline('name')}                    Use artifact named ${chalk.underline('name')} from build (default: drop)
+    ${chalk.bold('--artifact=')}${chalk.underline('name')}
 
-    {bold -p} {underline pr#}                     Fetch and merge the pull request that initiated this bottle
-    {bold --pr=}{underline pr#}
+    ${chalk.bold('-p')} ${chalk.underline('pr#')}                     Fetch and merge the pull request that initiated this bottle
+    ${chalk.bold('--pr=')}${chalk.underline('pr#')}
 
-    {bold -n}                         Do not push after everything is complete
-    {bold --no-push}
+    ${chalk.bold('-n')}                         Do not push after everything is complete
+    ${chalk.bold('--no-push')}
 
-    {bold -d}                         Just print commands, instead of running them
-    {bold --dry-run}
+    ${chalk.bold('-d')}                         Just print commands, instead of running them
+    ${chalk.bold('--dry-run')}
 
-    {bold -k}                         Keep old bottles
-    {bold --keep-old}
+    ${chalk.bold('-k')}                         Keep old bottles
+    ${chalk.bold('--keep-old')}
 
-    {bold -h}                         Show this message
-    {bold --help}
+    ${chalk.bold('-h')}                         Show this message
+    ${chalk.bold('--help')}
 `
     );
 }

@@ -1,6 +1,6 @@
 import * as vm from "azure-devops-node-api";
 // import lim from "azure-devops-node-api/interfaces/LocationsInterfaces";
-import chalk from "chalk-template";
+import chalk from "chalk";
 
 export function getEnv(name: string): string {
     let val = process.env[name];
@@ -54,5 +54,5 @@ export function getProject(): string {
 }
 
 export function heading(title: string): void {
-    console.log(chalk`{blue ==>} {bold ${title}}`);
+    console.log(`${chalk.blue('==>')} ${chalk.bold(title)}`);
 }
