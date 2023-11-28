@@ -66,6 +66,7 @@ async function macosTag() {
 
     const versionNumber = await macosVersion()
     const SYMBOLS = {
+        sonoma:      "14",
         ventura:     "13",
         monterey:    "12",
         bur_sur:     "11",
