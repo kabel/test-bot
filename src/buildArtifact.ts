@@ -1,12 +1,14 @@
 import vm from "azure-devops-node-api";
 import ba from "azure-devops-node-api/BuildApi";
 import bi from "azure-devops-node-api/interfaces/BuildInterfaces";
+import tmp from "tmp-promise";
 import {createWriteStream} from "node:fs";
 import {getWebApi, getProject, heading} from "./common.js";
 import Expander from "./expander.js";
 
 export interface RunOptions {
-    dryRun?: boolean
+    dryRun?: boolean,
+    keepTmp?: boolean,
 }
 
 export async function run(buildId: number, artifactName: string, opt: RunOptions) {
@@ -32,6 +34,9 @@ export async function run(buildId: number, artifactName: string, opt: RunOptions
     }
 
     heading(`Downloading ${download.resource.downloadUrl}`);
+
+    const tmpDir = await tmp.dir({keep: !!opt.keepTmp, unsafeCleanup: true});
+    process.chdir(tmpDir.path);
     
     const path = Expander.findAvailableName(`${artifactName}.zip`);
     const artifactStream = await vstsBuild.getArtifactContentZip(project, buildId, artifactName);

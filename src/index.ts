@@ -46,6 +46,10 @@ ${chalk.underline('options')}
     ${chalk.bold('-k')}                         Keep old bottles
     ${chalk.bold('--keep-old')}
 
+    ${chalk.bold('-t')}                         Keep tmp directory used to download artifacts
+    ${chalk.bold('--keep-tmp')}
+
+
     ${chalk.bold('-h')}                         Show this message
     ${chalk.bold('--help')}
 `
@@ -109,6 +113,18 @@ interface MainOptions extends minimist.ParsedArgs {
     "dry-run"?: boolean
 
     /**
+     * @alias keep-old
+     */
+    k: boolean
+    "keep-old"?: boolean
+
+    /**
+     * @alias keep-tmp
+     */
+    t: boolean
+    "keep-tmp"?: boolean
+
+    /**
      * @alias help
      */
     h: boolean
@@ -129,10 +145,11 @@ async function main() {
                 "no-push": "n",
                 "dry-run": "d",
                 "keep-old": "k",
+                "keep-tmp": "t",
                 help: "h"
             },
             default: {artifact: "drop"},
-            boolean: ["n", "d", "k", "h"]
+            boolean: ["n", "d", "k", "t", "h"]
         });
 
         if (process.env.NO_COLOR) {
@@ -155,7 +172,7 @@ async function main() {
 
         let expandedPath = "."
         if (opts["build-id"]) {
-            expandedPath = await fetch(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"]});
+            expandedPath = await fetch(opts["build-id"], opts.artifact, {dryRun: opts["dry-run"], keepTmp: opts["keep-tmp"]});
         }
         await ciUpload(expandedPath, opts._[0], {dryRun: opts["dry-run"], pr: opts.pr, keepOld: opts["keep-old"], noPush: opts["no-push"]});
     } catch (reason:any) {
